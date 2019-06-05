@@ -1,7 +1,8 @@
 .vscode
-*.so
-build
 .ipynb_checkpoints
 __pycache__
-*.model
 Dataset/
+build
+*.model
+*.so
+

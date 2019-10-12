@@ -1,14 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "CSV.h"
+#include "CSVReader.h"
 
-int main(int argc, char const *argv[]){
-    CSV csvframe("mobile-price-classification/train.csv", true, ',');
+#include <iostream>
 
-    csvframe.read();
+int main(int argc, char const *argv[]) {
+  CSVReader csvframe("mobile-price-classification/train.csv", false, ',');
 
-    puts(csvframe.toString().c_str());
+  puts(csvframe.toString().c_str());
 
-    return 0;
+  puts("\n");
+  
+
+  return 0;
 }

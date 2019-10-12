@@ -1,79 +1,74 @@
 #ifndef __ML_DATA_COLUMN_H
 #define __ML_DATA_COLUMN_H
 
-#include <stdlib.h>
 #include <memory.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <vector>
+#include "utils.h"
 
-enum ColumnType{
-  cbase,
-  cint32,
-  cint64,
-  cint8,
+enum ColumnType {
+  none,
+  int32,
+  int64,
+  int8,
+  float32,
+  float64,
 };
 
-//64 bits
-#define COLUMN_ITEM_BITS_MAX 8
-
-class ColumnItem{
- private:
-  unsigned char mItem[COLUMN_ITEM_BITS_MAX]; //64 bits
-  ColumnType mType;
-
- public:
-  template <typename T>
-  ColumnItem(ColumnType type, T value);
-
-  ColumnItem();
-  ~ColumnItem();
-
-  ColumnType type();
-  /**
-   * read `size` to pointer `p`
-   */
-  void get_value(void* p, u_int8_t size);
-  int32_t int32_value();
-  int8_t int8_value();
-};
-
-class BaseColumn {
- private:
-  ColumnType mType;
+class NoneColumn {
  protected:
-  int mLength;
+  ColumnType mType;
+
  public:
-  BaseColumn();
-  ~BaseColumn();
+  NoneColumn();
+  ~NoneColumn();
 
-  virtual bool set_value(int index, ColumnItem &item);
+  void append(int item);
+  void set_value(int index, int item);
+  int& get_value(int index);
 
-  template <typename T>
-  void set_value(int index, T item);
+  int& operator[] (int index);
 
-  virtual ColumnItem get_value(int index);
-
-  int length();
+  size_t length();
   ColumnType type();
 };
 
-class Int32Column : BaseColumn {
+template <class C, ColumnType M>
+class TemplateColumn : public NoneColumn {
  private:
-  int32_t* mRows;
+  std::vector<C> mRows;
 
  public:
-  Int32Column();
-  ~Int32Column();
+  TemplateColumn() { this->mType = M; }
+  ~TemplateColumn() {}
 
-  ColumnItem get_value(int index);
+  void append(C item) { this->mRows.push_back(item); }
+  void set_value(int index, C item) {
+    if (index < this->mRows.size()) {
+      this->mRows[index] = item;
+    }
+    throw IndexOutOfBoundError();
+  }
+  C& get_value(int index) {
+    if (index < this->mRows.size()) {
+      return this->mRows[index];
+    }
+    throw IndexOutOfBoundError();
+  }
+  C& operator[](int index) {
+    if (index < this->mRows.size()) {
+      return this->mRows[index];
+    }
+    throw IndexOutOfBoundError();
+  }
+
+  size_t length() { return this->mRows.size(); }
 };
 
-class Int8Column{
-private:
-  int8_t* mRows;
-public:
-  Int8Column();
-  ~Int8Column();
-
-  ColumnItem get_value(int index);
-};
+typedef TemplateColumn<int32_t, ColumnType::int32> Int32Column;
+typedef TemplateColumn<int8_t, ColumnType::int8> Int8Column;
+typedef TemplateColumn<float, ColumnType::float32> Float32Column;
+typedef TemplateColumn<double, ColumnType::float64> Float64Column;
 
 #endif  //__ML_DATA_COLUMN_H

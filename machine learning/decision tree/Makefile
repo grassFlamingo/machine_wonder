@@ -1,24 +1,26 @@
 
+.PHONY: all
+
 default: all
 
 CC=g++
-CFLAGS = -Wall -O3
+CFLAGS = -Wall -g
 CFLAGS += -I "$(PWD)"
-
 CCCOMP = $(CC) $(CFLAGS) -c
 
+ALL_OBJECTS = CSVReader.o \
+			theColumn.o \
+			utils.o
+
 all: main
-	@echo "Building"
+	@echo "Builded"
 	
+main: main.cpp $(ALL_OBJECTS)
+	$(CC) $(CFLAGS) -o main.o main.cpp $(ALL_OBJECTS)
 
-main: main.cpp CSV.o
-	$(CC) $(CFLAGS) main.cpp CSV.o -o main.o
+%.o: %.cpp %.h
 
-CSV.o: CSV.cpp CSV.h theColumn.o
-	$(CCCOMP) CSV.cpp -o CSV.o
-
-theColumn.o: theColumn.cpp theColumn.h
-	$(CCCOMP) theColumn.cpp -o theColumn.o
+.PHONY: clean
 
 clean:
-	@rm -f *.o
+	@-rm -f *.o

@@ -4,13 +4,13 @@
 default: all
 
 CC=g++
-CFLAGS = -Wall -g
+CFLAGS = -Wall -O3
 CFLAGS += -I "$(PWD)"
 CCCOMP = $(CC) $(CFLAGS) -c
 
 ALL_OBJECTS = CSVReader.o \
-			theColumn.o \
-			utils.o
+			ColumnTable.o \
+			Utils.o
 
 all: main
 	@echo "Builded"
@@ -19,6 +19,7 @@ main: main.cpp $(ALL_OBJECTS)
 	$(CC) $(CFLAGS) -o main.o main.cpp $(ALL_OBJECTS)
 
 %.o: %.cpp %.h
+	$(CCCOMP) $< -o $@
 
 .PHONY: clean
 

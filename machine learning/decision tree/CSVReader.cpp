@@ -12,6 +12,7 @@ CSVReader::CSVReader(const char* filename, bool usehead, char separator) {
     throw FileOpenError();
   }
   this->mColumnNames = this->read_line();
+
   if (!usehead) {
     char col[32];
     int size = this->mColumnNames.size();
@@ -55,6 +56,13 @@ std::vector<std::string> CSVReader::read_line() {
 }
 
 int CSVReader::num_columns() { return this->mColumnNames.size(); }
+
+std::string CSVReader::column_name(size_t at){
+  if(at >= this->mColumnNames.size()){
+    throw IndexOutOfBoundError();
+  }
+  return this->mColumnNames[at];
+}
 
 std::string CSVReader::toString(){
   std::string rep;

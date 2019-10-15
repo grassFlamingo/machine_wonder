@@ -7,8 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "utils.h"
-#include "theColumn.h"
+#include "Utils.h"
 
 class CSVReader {
  private:
@@ -26,6 +25,8 @@ class CSVReader {
   ~CSVReader();
 
   std::vector<std::string> read_line();
+
+  std::string column_name(size_t at);
 
   int num_columns();
   std::string toString();

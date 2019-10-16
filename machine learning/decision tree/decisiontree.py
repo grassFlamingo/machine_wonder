@@ -17,8 +17,6 @@ trainData = pd.read_csv(
 )
 
 # %%
-
-
 class DecisionNode:
     def __init__(self, feature: str, label, value):
         """
@@ -61,8 +59,6 @@ class DecisionNode:
         return f"|{pres}{self.feature} {self.value}{label}{leaves}"
 
 # %%
-
-
 def column_entropy(d: pd.DataFrame, colname):
     count = d[colname].value_counts().to_numpy()
     prob = count / count.sum()
@@ -70,7 +66,7 @@ def column_entropy(d: pd.DataFrame, colname):
     return ent
 
 # %%
-def ID3(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=1e-5):
+def ID3(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=1e-1):
     """
     dataset: Dataset, the last column are labels
     features: feature set
@@ -81,7 +77,7 @@ def ID3(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=1e-5):
     label = valueCounts.idxmax()
     if len(valueCounts) <= 1 or len(features) <= 0:
         # print(f"end with {len(valueCounts)} or {len(features)}")
-        return DecisionNode(str(dataset.columns[-1]), label, value)
+        return DecisionNode(oldfearute, label, value)
 
     # compute information Gain
     minent, minfea = np.inf, None
@@ -96,7 +92,7 @@ def ID3(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=1e-5):
     # print(f"min entropy is {minent}, feature is {minfea} and gain is {entD-minent}")
 
     if entD - minent < epsilon:
-        return DecisionNode(minfea, label, value)
+        return DecisionNode(oldfearute, label, value)
 
     choices = dataset[minfea].unique()
 
@@ -111,7 +107,7 @@ def ID3(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=1e-5):
 
     return node
 #%%
-def Dtree_C45(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=1e-2):
+def Dtree_C45(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=1e-1):
     """
     dataset: Dataset, the last column are labels
     features: feature set
@@ -122,13 +118,12 @@ def Dtree_C45(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=
     label = valueCounts.idxmax()
     if len(valueCounts) <= 1 or len(features) <= 0:
         # print(f"end with {len(valueCounts)} or {len(features)}")
-        return DecisionNode(str(dataset.columns[-1]), label, value)
+        return DecisionNode(oldfearute, label, valueCounts.max())
 
     # compute information Gain
     maxgain, selectfea = -np.inf, None
 
     entD = column_entropy(dataset, dataset.columns[-1])
-    # TODO: C4.5
     for fea in features:
         ent = column_entropy(dataset, fea)
         gain = (entD - ent) / (ent + 1e-8)
@@ -136,10 +131,8 @@ def Dtree_C45(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=
             maxgain = gain
             selectfea = fea
 
-    # print(f"min entropy is {minent}, feature is {selectfea} and gain is {entD-minent}")
-
     if maxgain < epsilon:
-        return DecisionNode(selectfea, label, value)
+        return DecisionNode(oldfearute, label, value)
 
     choices = dataset[selectfea].unique()
 
@@ -156,47 +149,44 @@ def Dtree_C45(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=
 
 
 #%%
+# preprocess datas
+def preprocess_data(df: pd.DataFrame):
+    """
+    We will rerange the column 
+    [
+        "battery_power",
+        "px_height",
+        "px_width",
+        "ram",
+    ]
+    """
+    def _rerange(x):
+        if not x.name in ["battery_power", "px_height", "px_width", "ram"]:
+            return x
+
+        minx, maxx = x.min(), x.max()
+        newrange = np.linspace(minx, maxx, 6)
+        dOut = pd.Series(x)
+        for l,r in zip(newrange[0:-1], newrange[1::]):
+            dOut[(x >= l) & (x <= r)] = np.floor(l)
+        return dOut
+    return df.apply(_rerange, axis=0)
+
+#%%
 featureSet = list(trainData.columns[0:-1])
 print(featureSet)
 
-realTrainSet = trainData.loc[0:1800]
-realTestSet = trainData.loc[1800::]
+realTrainSet = preprocess_data(trainData.loc[0:1800])
+realTestSet = preprocess_data(trainData.loc[1800::])
 
-tree = ID3(trainData.loc[0:100], featureSet, '--', '--')
-
-print(tree)
-
-#%%
-# predict
-realout, predout = [], []
-for i, row in trainData.loc[0:100].iterrows():
-    preded = tree.predict(row)
-    # print(f"{i} real {row[-1]} pred {preded}")
-    realout.append(row[-1])
-    predout.append(preded)
-
-print((np.asarray(realout) == np.asarray(predout)).mean())
-
-# predict
-realout, predout = [], []
-for i, row in trainData.loc[1800:2000].iterrows():
-    preded = tree.predict(row)
-    # print(f"{i} real {row[-1]} pred {preded}")
-    realout.append(row[-1])
-    predout.append(preded)
-
-print((np.asarray(realout) == np.asarray(predout)).mean())
-
-
-#%%
-tree = Dtree_C45(trainData.loc[0:1800], featureSet, '--', '--')
+tree = ID3(realTrainSet, featureSet, '--', '--', epsilon=1e-3)
 
 print(tree)
 
 #%%
 # predict
 realout, predout = [], []
-for i, row in trainData.loc[0:100].iterrows():
+for i, row in realTrainSet.iterrows():
     preded = tree.predict(row)
     # print(f"{i} real {row[-1]} pred {preded}")
     realout.append(row[-1])
@@ -206,7 +196,33 @@ print((np.asarray(realout) == np.asarray(predout)).mean())
 
 # predict
 realout, predout = [], []
-for i, row in trainData.loc[1800:2000].iterrows():
+for i, row in realTestSet.iterrows():
+    preded = tree.predict(row)
+    # print(f"{i} real {row[-1]} pred {preded}")
+    realout.append(row[-1])
+    predout.append(preded)
+
+print((np.asarray(realout) == np.asarray(predout)).mean())
+
+
+#%%
+tree = Dtree_C45(realTrainSet, featureSet, '--', '--')
+
+print(tree)
+
+#%%
+realout, predout = [], []
+for i, row in realTrainSet.iterrows():
+    preded = tree.predict(row)
+    # print(f"{i} real {row[-1]} pred {preded}")
+    realout.append(row[-1])
+    predout.append(preded)
+
+print((np.asarray(realout) == np.asarray(predout)).mean())
+
+# predict
+realout, predout = [], []
+for i, row in realTestSet.iterrows():
     preded = tree.predict(row)
     # print(f"{i} real {row[-1]} pred {preded}")
     realout.append(row[-1])

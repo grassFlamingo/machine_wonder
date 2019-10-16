@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 
 #include "CSVReader.h"
 #include "ColumnTable.h"
@@ -12,7 +13,7 @@ int main(int argc, char const *argv[]) {
   std::vector<NoneColumn*> theColumns(csvframe.num_columns());
   for(size_t i = 0; i < theColumns.size(); i++){
     // sorry we use Float32 for all
-    theColumns[i] = new Float32Column(csvframe.column_name(i));
+    theColumns[i] = new Int32Column(csvframe.column_name(i));
   }
 
   while(true){
@@ -32,8 +33,14 @@ int main(int argc, char const *argv[]) {
     printf("\n");
   }
 
+  
+
   for(auto j: theColumns){
     printf("mean of %s is %f\n", j->name_cstr(), j->mean());
+    for(auto v: j->value_counts()){
+      printf("%d  ", v);
+    }
+    puts("\n");
   }
 
   for(auto c: theColumns){

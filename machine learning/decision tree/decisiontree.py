@@ -149,35 +149,11 @@ def Dtree_C45(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=
 
 
 #%%
-# preprocess datas
-def preprocess_data(df: pd.DataFrame):
-    """
-    We will rerange the column 
-    [
-        "battery_power",
-        "px_height",
-        "px_width",
-        "ram",
-    ]
-    """
-    def _rerange(x):
-        if not x.name in ["battery_power", "px_height", "px_width", "ram"]:
-            return x
-
-        minx, maxx = x.min(), x.max()
-        newrange = np.linspace(minx, maxx, 6)
-        dOut = pd.Series(x)
-        for l,r in zip(newrange[0:-1], newrange[1::]):
-            dOut[(x >= l) & (x <= r)] = np.floor(l)
-        return dOut
-    return df.apply(_rerange, axis=0)
-
-#%%
 featureSet = list(trainData.columns[0:-1])
 print(featureSet)
 
-realTrainSet = preprocess_data(trainData.loc[0:1800])
-realTestSet = preprocess_data(trainData.loc[1800::])
+realTrainSet = trainData.loc[0:1800]
+realTestSet = trainData.loc[1800::]
 
 tree = ID3(realTrainSet, featureSet, '--', '--', epsilon=1e-3)
 

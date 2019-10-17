@@ -11,10 +11,16 @@ import matplotlib.pyplot as plt
 # %matplotlib notebook
 
 # %%
+# trainData = pd.read_csv(
+#     "machine learning/decision tree/mobile-price-classification/train.csv",
+#     sep=",",
+# )
+
 trainData = pd.read_csv(
-    "machine learning/decision tree/mobile-price-classification/train.csv",
+    "machine learning/decision tree/income-classification/income_evaluation.csv",
     sep=",",
 )
+
 
 # %%
 class DecisionNode:
@@ -56,7 +62,7 @@ class DecisionNode:
             leaves = ""
             label = f" [{self.label}]"
 
-        return f"|{pres}{self.feature} {self.value}{label}{leaves}"
+        return f"|{pres}{self.feature}: {self.value}{label}{leaves}"
 
 # %%
 def column_entropy(d: pd.DataFrame, colname):
@@ -118,7 +124,7 @@ def Dtree_C45(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=
     label = valueCounts.idxmax()
     if len(valueCounts) <= 1 or len(features) <= 0:
         # print(f"end with {len(valueCounts)} or {len(features)}")
-        return DecisionNode(oldfearute, label, valueCounts.max())
+        return DecisionNode(oldfearute, label, value)
 
     # compute information Gain
     maxgain, selectfea = -np.inf, None
@@ -152,56 +158,35 @@ def Dtree_C45(dataset: pd.DataFrame, features: list, value, oldfearute, epsilon=
 featureSet = list(trainData.columns[0:-1])
 print(featureSet)
 
-realTrainSet = trainData.loc[0:1800]
-realTestSet = trainData.loc[1800::]
+lenofset = len(trainData)
+splitsetat = int(0.8 * lenofset)
+trainData = trainData.sample(frac=1).reset_index(drop=True)
+realTrainSet = trainData.loc[0:splitsetat]
+realTestSet = trainData.loc[splitsetat:lenofset]
 
-tree = ID3(realTrainSet, featureSet, '--', '--', epsilon=1e-3)
+#%%
+def predict_acc(tree, dataset):
+    # predict
+    realout, predout = [], []
+    for _, row in dataset.iterrows():
+        preded = tree.predict(row)
+        realout.append(row[-1])
+        predout.append(preded)
+
+    return (np.asarray(realout) == np.asarray(predout)).mean()
+
+#%%
+tree = ID3(realTrainSet, featureSet, '--', '--', epsilon=1e-8)
 
 print(tree)
 
-#%%
-# predict
-realout, predout = [], []
-for i, row in realTrainSet.iterrows():
-    preded = tree.predict(row)
-    # print(f"{i} real {row[-1]} pred {preded}")
-    realout.append(row[-1])
-    predout.append(preded)
-
-print((np.asarray(realout) == np.asarray(predout)).mean())
-
-# predict
-realout, predout = [], []
-for i, row in realTestSet.iterrows():
-    preded = tree.predict(row)
-    # print(f"{i} real {row[-1]} pred {preded}")
-    realout.append(row[-1])
-    predout.append(preded)
-
-print((np.asarray(realout) == np.asarray(predout)).mean())
-
+print("train set ID3", predict_acc(tree, realTrainSet[0:500]))
+print("test  set ID3", predict_acc(tree, realTestSet))
 
 #%%
-tree = Dtree_C45(realTrainSet, featureSet, '--', '--')
+tree = Dtree_C45(realTrainSet, featureSet, '--', '--', epsilon=1e-8)
 
 print(tree)
 
-#%%
-realout, predout = [], []
-for i, row in realTrainSet.iterrows():
-    preded = tree.predict(row)
-    # print(f"{i} real {row[-1]} pred {preded}")
-    realout.append(row[-1])
-    predout.append(preded)
-
-print((np.asarray(realout) == np.asarray(predout)).mean())
-
-# predict
-realout, predout = [], []
-for i, row in realTestSet.iterrows():
-    preded = tree.predict(row)
-    # print(f"{i} real {row[-1]} pred {preded}")
-    realout.append(row[-1])
-    predout.append(preded)
-
-print((np.asarray(realout) == np.asarray(predout)).mean())
+print("train set C4.5", predict_acc(tree, realTrainSet[0:500]))
+print("test  set C4.5", predict_acc(tree, realTestSet))

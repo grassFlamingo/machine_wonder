@@ -6,6 +6,5 @@ build
 *.model
 *.o
 *.so
-*.o
 .pytest_cache
 

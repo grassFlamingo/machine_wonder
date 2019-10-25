@@ -4,6 +4,7 @@ __pycache__
 Dataset/
 build
 *.model
+*.o
 *.so
 .pytest_cache
 

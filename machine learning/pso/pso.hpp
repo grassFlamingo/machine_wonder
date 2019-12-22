@@ -32,43 +32,62 @@ class matharray {
 
   matharray(const MType* src) : mItems(*src->mItems) {}
 
-  void operator+=(MType& b) {
+  const MType& operator+=(const MType& b) {
     for (size_t i = 0; i < N; i++) {
-      this->mItems[i] += b[i];
+      this->mItems[i] += b.mItems[i];
     }
+    return *this;
   }
 
-  void operator+=(T& b) {
+  const MType& operator+=(T& b) {
     for (size_t i = 0; i < N; i++) {
       this->mItems[i] += b;
     }
+    return *this;
   }
 
-  void operator-=(MType& b) {
+  MType operator+(const MType& b) { return MType(this->mItems) += b; }
+  MType operator+(T& b) { return MType(this->mItems) += b; }
+
+  const MType& operator-=(const MType& b) {
     for (size_t i = 0; i < N; i++) {
-      this->mItems[i] -= b[i];
+      this->mItems[i] -= b.mItems[i];
     }
+    return *this;
   }
 
-  void operator-=(T& b) {
+  const MType& operator-=(T& b) {
     for (size_t i = 0; i < N; i++) {
       this->mItems[i] -= b;
     }
+    return *this;
   }
 
-  void operator*=(MType& b) {
+  const MType operator-(const MType& b) {
+    MType ans(this->mItems);
+    ans -= b;
+    return ans;
+  }
+  const MType& operator-(T& b) { return MType(this->mItems) -= b; }
+
+  MType& operator*=(const MType& b) {
     for (size_t i = 0; i < N; i++) {
-      this->mItems[i] *= b[i];
+      this->mItems[i] *= b.mItems[i];
     }
+    return *this;
   }
 
-  void operator*=(T& b) {
+  MType& operator*=(const T& b) {
     for (size_t i = 0; i < N; i++) {
       this->mItems[i] *= b;
     }
+    return *this;
   }
 
-  T& operator[](size_t i) { return this->mItems[i]; }
+  MType operator*(const MType& b) { return MType(this->mItems) *= b; }
+  MType operator*(const T& b) { return MType(this->mItems) *= b; }
+
+  T operator[](size_t i) { return this->mItems[i]; }
 
   T sum() {
     T ans = T(0);
@@ -104,65 +123,16 @@ class matharray {
       this->mItems[i] = float(rand() % 0x100) * scale + a;
     }
   }
+
+  // iterator
+  T* begin() { return this->mItems.begin(); }
+
+  T* end() { return this->mItems.end(); }
 };
-
-template <typename T, size_t N>
-class matharrayO : public matharray<T, N> {
-  typedef matharrayO<T, N> MType;
-
- public:
-  matharrayO(const matharray<T, N>& other) : matharray<T, N>(other) {}
-
-  MType& operator+(MType& other) {
-    *this += other;
-    return *this;
-  }
-
-  MType& operator+(T& other) {
-    for(T& i: this->mItems){
-      i += other;
-    }
-    return *this;
-  }
-
-  MType& operator-(MType& other) {
-    *this -= other;
-    return *this;
-  }
-
-  MType& operator-(T& other) {
-    for(T& i: this->mItems){
-      i -= other;
-    }
-    return *this;
-  }
-
-  MType& operator*(MType& other) {
-    for(size_t i = 0; i < N; i++){
-      this->mItems[i] *= other[i];
-    }
-    return *this;
-  }
-
-  MType& operator*(T& other) {
-    for(T& i: this->mItems){
-      i *= other;
-    }
-    return *this;
-  }
-};
-
-template <typename T, size_t N>
-const matharrayO<T, N>& operator*(float a, const matharrayO<T, N>& me) {
-  me *= a;
-  return me;
-}
 
 // using is added in c++ 11
 template <size_t N>
 using matharray_f = matharray<float, N>;
-template <size_t N>
-using matharrayO_f = matharrayO<float, N>;
 
 template <size_t N>
 class Particles {
@@ -170,7 +140,7 @@ class Particles {
   Particles() {
     this->mPosition.random_uniform(-1, 1);
     this->mMyBest.fill(this->mPosition);
-    this->mVelocity.fill(0.0f);
+    this->mVelocity.random_uniform(-1,1);
     this->mMinLoss = 1e10;
   }
 
@@ -192,13 +162,12 @@ class Particles {
    */
   void update_position(matharray_f<N>& globalbest, float w, float c1,
                        float c2) {
-    matharrayO_f<N> _bv(this->mVelocity);
-    matharrayO_f<N> _bp(this->mMyBest);
-    matharrayO_f<N> _bg(globalbest);
+    matharray_f<N> _bv(this->mVelocity);
+    matharray_f<N> _bp = this->mMyBest - this->mPosition;
+    matharray_f<N> _bg = globalbest - this->mPosition;
 
-    this->mVelocity += _bv * w;
-    this->mVelocity += random_U01() * c1 * (_bp - this->mPosition);
-    this->mVelocity += random_U01() * c2 * (_bg - this->mPosition);
+    this->mVelocity =
+        _bv * w + _bp * (c1 * random_U01()) + _bg * (c2 * random_U01());
 
     this->mPosition += this->mVelocity;
   }

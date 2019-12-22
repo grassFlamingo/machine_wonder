@@ -6,15 +6,26 @@
 #include "pso.hpp"
 
 #define DIMENSION_X 3
-#define PARTICLES_N 8
+#define PARTICLES_N 4
 
-matharray_f<DIMENSION_X> __loss_array = {0.3f, 0.5f, -0.1f};
+matharray_f<DIMENSION_X> __loss_array = {0.1f, 1.2f, -0.9f};
 
 float the_loss_function(matharray_f<DIMENSION_X> x) {
-  auto t = matharrayO<float, DIMENSION_X>(x);
-  t -= __loss_array;
-  t = t * t;
+  auto t = x -  __loss_array;
+  t *= t;
   return t.sum();
+}
+
+void print_math_array(matharray_f<DIMENSION_X> x, bool newline = true) {
+  printf("[");
+  for (float j : x) {
+    printf(" %f", j);
+  }
+  if (newline) {
+    printf(" ]\n");
+  } else {
+    printf(" ]");
+  }
 }
 
 int main(int argc, char const *argv[]) {
@@ -28,20 +39,20 @@ int main(int argc, char const *argv[]) {
 
   printf("Loss of initial global is %f \n", gloss);
 
-  for (int i = 0; i < PARTICLES_N; i++) {
-    auto pi = partList[i];
+  for (auto& pi: partList) {
     float tloss = the_loss_function(pi.mPosition);
     pi.mMinLoss = tloss;
     if (tloss < gloss) {
-      pi.mMyBest = globalBest;
+      pi.mMyBest.fill(globalBest);
     }
     pi.mVelocity.random_uniform(-2.0, 2.0);
   }
 
-  for (int i = 0; i < 200; i++) {
+  for (int i = 0; i < 100; i++) {
     // loop
-    for (auto pi : partList) {
-      pi.update_position(globalBest, 0.8, 0.5, 0.2);
+    // print_math_array(partList[0].mPosition);
+    for (auto& pi : partList) {
+      pi.update_position(globalBest, 0.8, 1.2, 1.0);
       float lpi = the_loss_function(pi.mPosition);
       pi.set_my_best(lpi);
       if (lpi < gloss) {
@@ -49,8 +60,15 @@ int main(int argc, char const *argv[]) {
         globalBest.fill(pi.mPosition);
       }
     }
+    // print_math_array(partList[0].mPosition);
+    if (i % 10 == 0) {
+      printf("epho %03d ", i);
+      print_math_array(globalBest, true);
+    }
   }
 
+  printf("real value ");
+  print_math_array(__loss_array, true);
   printf("Loss of final global is %f \n", gloss);
 
   return 0;

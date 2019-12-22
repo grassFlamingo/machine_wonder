@@ -4,6 +4,7 @@
 default: all
 
 CC=gcc
+GPP=g++
 CFLAGS = -Wall -O3
 CFLAGS += -I "$(PWD)"
 CFLAGS_END = -lGL -lGLU -lglut
@@ -15,6 +16,10 @@ all: main
 main: main.c
 	$(CC) $(CFLAGS) -o main.o main.c $(CFLAGS_END)
 
+pso-cli: pso-cli.cpp pso.hpp
+	$(GPP) $(CFLAGS) -o pso-cli.o pso-cli.cpp 
+
+
 %.o: %.cpp %.h
 	$(CCCOMP) $< -o $@
 
@@ -22,3 +27,4 @@ main: main.c
 
 clean:
 	@-rm -f *.o
+	@-rm pso pso-cli

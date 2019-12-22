@@ -73,16 +73,3 @@ int main(int argc, char const *argv[]) {
 
   return 0;
 }
-
-/**
- * 523MB (523,239,424 bytes) Microsoft WIndows Recovery Environment (System)
- * 105MB EFI System Fat 32
- *
- * 17 MB (16,777.216 bytes) Microsoft Reserved
- * 107GB NTFS
- * 664MB (663,748,608 bytes) Microsoft Recovery Environment (System, No
- * Automount) NTFS
- *
- *
- *
- */

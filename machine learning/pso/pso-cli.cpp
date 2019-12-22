@@ -43,9 +43,9 @@ int main(int argc, char const *argv[]) {
     float tloss = the_loss_function(pi.mPosition);
     pi.mMinLoss = tloss;
     if (tloss < gloss) {
-      pi.mMyBest.fill(globalBest);
+      gloss = tloss;
+      globalBest.fill(pi.mPosition);
     }
-    pi.mVelocity.random_uniform(-2.0, 2.0);
   }
 
   for (int i = 0; i < 100; i++) {
@@ -62,7 +62,7 @@ int main(int argc, char const *argv[]) {
     }
     // print_math_array(partList[0].mPosition);
     if (i % 10 == 0) {
-      printf("epho %03d ", i);
+      printf("epho %03d gloss %.5f ", i, gloss);
       print_math_array(globalBest, true);
     }
   }

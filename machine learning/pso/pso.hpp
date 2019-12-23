@@ -1,6 +1,7 @@
 #ifndef __H_PSO_ALG
 #define __H_PSO_ALG
 
+#include <math.h>
 #include <stdlib.h>
 #include <array>
 #include <initializer_list>
@@ -87,6 +88,23 @@ class matharray {
   MType operator*(const MType& b) { return MType(this->mItems) *= b; }
   MType operator*(const T& b) { return MType(this->mItems) *= b; }
 
+  MType& operator/=(const MType& b) {
+    for (size_t i = 0; i < N; i++) {
+      this->mItems[i] /= b.mItems[i];
+    }
+    return *this;
+  }
+
+  MType& operator/=(const T& b) {
+    for (size_t i = 0; i < N; i++) {
+      this->mItems[i] /= b;
+    }
+    return *this;
+  }
+
+  MType operator/(const MType& b) { return MType(this->mItems) /= b; }
+  MType operator/(const T& b) { return MType(this->mItems) /= b; }
+
   T operator[](size_t i) { return this->mItems[i]; }
 
   T sum() {
@@ -128,6 +146,15 @@ class matharray {
   T* begin() { return this->mItems.begin(); }
 
   T* end() { return this->mItems.end(); }
+
+  // static
+  static matharray<T, N> sin(const matharray<T, N>& x) {
+    matharray<T, N> ans(x);
+    for (auto& i : ans) {
+      i = std::sin(i);
+    }
+    return ans;
+  }
 };
 
 // using is added in c++ 11
@@ -140,7 +167,7 @@ class Particles {
   Particles() {
     this->mPosition.random_uniform(-1, 1);
     this->mMyBest.fill(this->mPosition);
-    this->mVelocity.random_uniform(-1,1);
+    this->mVelocity.random_uniform(-1, 1);
     this->mMinLoss = 1e10;
   }
 

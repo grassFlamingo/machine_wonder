@@ -5,9 +5,13 @@
 
 #include "pso.hpp"
 
+#define PARTICLES_N 16
 #define DIMENSION_X 3
-#define PARTICLES_N 4
 
+#define X_SQUARE
+// #define XX_SIN_X
+
+#ifdef X_SQUARE
 matharray_f<DIMENSION_X> __loss_array = {0.1f, 1.2f, -0.9f};
 
 float the_loss_function(matharray_f<DIMENSION_X> x) {
@@ -15,6 +19,17 @@ float the_loss_function(matharray_f<DIMENSION_X> x) {
   t *= t;
   return t.sum();
 }
+#endif
+
+#ifdef XX_SIN_X
+matharray_f<DIMENSION_X> __loss_array = {-0.48f, -0.48f, -0.48f};
+
+float the_loss_function(matharray_f<DIMENSION_X> x){
+  auto sq = (x * x) / 3.0f;
+  auto ss = matharray_f<DIMENSION_X>::sin(x * 3.0f);
+  return sq.sum() + ss.sum() + 1;
+}
+#endif
 
 void print_math_array(matharray_f<DIMENSION_X> x, bool newline = true) {
   printf("[");
@@ -48,11 +63,15 @@ int main(int argc, char const *argv[]) {
     }
   }
 
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 200; i++) {
     // loop
     // print_math_array(partList[0].mPosition);
     for (auto& pi : partList) {
+      #ifdef X_SQUARE
       pi.update_position(globalBest, 0.8, 1.2, 1.0);
+      #else XX_SIN_X
+      pi.update_position(globalBest, 1.0, 1.3, 1.1);
+      #endif
       float lpi = the_loss_function(pi.mPosition);
       pi.set_my_best(lpi);
       if (lpi < gloss) {

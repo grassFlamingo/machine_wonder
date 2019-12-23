@@ -164,11 +164,24 @@ using matharray_f = matharray<float, N>;
 template <size_t N>
 class Particles {
  public:
-  Particles() {
-    this->mPosition.random_uniform(-1, 1);
+  /**
+   * mPosition <- U(low, up)
+   * mVelocity <- U(low, up)
+   * @param low:
+   * @param up;
+   */
+  Particles(float low = -1.0f, float up = 1.0f) {
+    this->mPosition.random_uniform(low, up);
     this->mMyBest.fill(this->mPosition);
-    this->mVelocity.random_uniform(-1, 1);
-    this->mMinLoss = 1e10;
+    this->mVelocity.random_uniform(low, up);
+    this->mMinLoss = 1e+10;
+  }
+
+  Particles(const Particles<N>& other) {
+    this->mPosition = other.mPosition;
+    this->mMyBest = other.mMyBest;
+    this->mVelocity = other.mVelocity;
+    this->mMinLoss = other.mMinLoss;
   }
 
   ~Particles() {}
@@ -210,6 +223,13 @@ class Particles {
     }
     this->mMinLoss = loss;
     this->mMyBest.fill(this->mPosition);
+  }
+
+  void operator=(const Particles<N>& other) {
+    this->mPosition = other.mPosition;
+    this->mMyBest = other.mMyBest;
+    this->mVelocity = other.mVelocity;
+    this->mMinLoss = other.mMinLoss;
   }
 
   const size_t size = N;

@@ -19,9 +19,7 @@ float the_loss_function(matharray_f<DIMENSION_X> x) {
   t *= t;
   return t.sum();
 }
-#endif
-
-#ifdef XX_SIN_X
+#elif defined(XX_SIN_X)
 matharray_f<DIMENSION_X> __loss_array = {-0.48f, -0.48f, -0.48f};
 
 float the_loss_function(matharray_f<DIMENSION_X> x){
@@ -29,6 +27,8 @@ float the_loss_function(matharray_f<DIMENSION_X> x){
   auto ss = matharray_f<DIMENSION_X>::sin(x * 3.0f);
   return sq.sum() + ss.sum() + 1;
 }
+#else
+  #error("loss function undefined!")
 #endif
 
 void print_math_array(matharray_f<DIMENSION_X> x, bool newline = true) {
@@ -43,14 +43,27 @@ void print_math_array(matharray_f<DIMENSION_X> x, bool newline = true) {
   }
 }
 
+/**
+ * pso-cli iteration
+ * - iteration: default 100
+ */
 int main(int argc, char const *argv[]) {
   srand(time(NULL));
 
+  size_t nIteration = 100;
+  if(argc >= 2){
+    sscanf(argv[1], "%lu", &nIteration);
+  }
+
   matharray_f<DIMENSION_X> globalBest;
-  globalBest.random_uniform(-1, 1);
+  globalBest.random_uniform(-1.2, 1.2);
+  float gloss = the_loss_function(globalBest);
 
   Particles<DIMENSION_X> partList[PARTICLES_N];
-  float gloss = the_loss_function(globalBest);
+
+  for(size_t i = 0; i < PARTICLES_N; i++){
+    partList[i] = Particles<DIMENSION_X>(-1.2f, 1.2f);
+  }
 
   printf("Loss of initial global is %f \n", gloss);
 
@@ -63,14 +76,14 @@ int main(int argc, char const *argv[]) {
     }
   }
 
-  for (int i = 0; i < 200; i++) {
+  for (size_t i = 0; i < nIteration; i++) {
     // loop
     // print_math_array(partList[0].mPosition);
     for (auto& pi : partList) {
       #ifdef X_SQUARE
       pi.update_position(globalBest, 0.8, 1.2, 1.0);
-      #else XX_SIN_X
-      pi.update_position(globalBest, 1.0, 1.3, 1.1);
+      #else
+      pi.update_position(globalBest, 1.0, 1.2, 1.0);
       #endif
       float lpi = the_loss_function(pi.mPosition);
       pi.set_my_best(lpi);
@@ -81,7 +94,7 @@ int main(int argc, char const *argv[]) {
     }
     // print_math_array(partList[0].mPosition);
     if (i % 10 == 0) {
-      printf("epho %03d gloss %.5f ", i, gloss);
+      printf("epho %03lu gloss %.5f ", i, gloss);
       print_math_array(globalBest, true);
     }
   }

@@ -10,7 +10,7 @@ CFLAGS += -I "$(PWD)"
 CFLAGS_END = -lGL -lGLU -lglut
 CCCOMP = $(CC) $(CFLAGS) -c
 
-all: main
+all: pso-cli
 	@echo "Builded"
 	
 main: main.c
@@ -18,6 +18,9 @@ main: main.c
 
 pso-cli: pso-cli.cpp pso.hpp
 	$(GPP) $(CFLAGS) -o pso-cli.o pso-cli.cpp 
+
+grad-cli: grad-cli.cpp pso.hpp
+	$(GPP) $(CFLAGS) -o grad-cli.o grad-cli.cpp 
 
 
 %.o: %.cpp %.h

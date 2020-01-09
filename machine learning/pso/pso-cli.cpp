@@ -5,13 +5,13 @@
 
 #include "pso.hpp"
 
-#define PARTICLES_N 16
 #define DIMENSION_X 3
 
-#define X_SQUARE
-// #define XX_SIN_X
+// #define X_SQUARE
+#define XX_SIN_X
 
 #ifdef X_SQUARE
+#define PARTICLES_N 16
 matharray_f<DIMENSION_X> __loss_array = {0.1f, 1.2f, -0.9f};
 
 float the_loss_function(matharray_f<DIMENSION_X> x) {
@@ -20,6 +20,7 @@ float the_loss_function(matharray_f<DIMENSION_X> x) {
   return t.sum();
 }
 #elif defined(XX_SIN_X)
+#define PARTICLES_N 64
 matharray_f<DIMENSION_X> __loss_array = {-0.48f, -0.48f, -0.48f};
 
 float the_loss_function(matharray_f<DIMENSION_X> x){
@@ -93,7 +94,7 @@ int main(int argc, char const *argv[]) {
       }
     }
     // print_math_array(partList[0].mPosition);
-    if (i % 10 == 0) {
+    if (i % 1 == 0) {
       printf("epho %03lu gloss %.5f ", i, gloss);
       print_math_array(globalBest, true);
     }

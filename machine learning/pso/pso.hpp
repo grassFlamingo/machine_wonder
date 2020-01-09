@@ -155,6 +155,15 @@ class matharray {
     }
     return ans;
   }
+
+  // static
+  static matharray<T, N> cos(const matharray<T, N>& x) {
+    matharray<T, N> ans(x);
+    for (auto& i : ans) {
+      i = std::cos(i);
+    }
+    return ans;
+  }
 };
 
 // using is added in c++ 11

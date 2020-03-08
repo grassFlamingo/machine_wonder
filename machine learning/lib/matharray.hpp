@@ -2,10 +2,11 @@
 #define _MATH_ARRAY_H
 
 #include <math.h>
-#include <array>
+#include <memory.h>
+#include <stdio.h>
 #include <initializer_list>
 
-inline float random_U01() { return float(rand() % 0x100) / (float)0x100; }
+inline float random_U01() { return float(rand() % 0xf00) / (float)0xf00; }
 
 // additions
 template <typename T, size_t N>
@@ -13,12 +14,12 @@ class matharray {
   typedef matharray<T, N> MType;
 
  protected:
-  std::array<T, N> mItems;
+  T mItems[N];
 
  public:
-  matharray() {}
+  matharray() { memset(mItems, 0, sizeof(T) * N); }
   // support a = {1, 2, 3, ...}
-  matharray(const std::initializer_list<T>& items) : mItems() {
+  matharray(const std::initializer_list<T>& items) {
     int maxlen = items.size() > N ? N : items.size();
 
     for (auto i = 0, it = items.begin(); i < maxlen; i++, it++) {
@@ -26,11 +27,18 @@ class matharray {
     }
   }
 
-  matharray(const std::array<T, N>& items) : mItems(items) {}
+  matharray(const MType* src) { memcpy(this->mItems, src, N * sizeof(T)); }
 
-  matharray(const matharray<T, N>& src) : mItems(src.mItems) {}
+  matharray(const MType& src) : matharray(&src) {}
 
-  matharray(const MType* src) : mItems(*src->mItems) {}
+  template <typename C>
+  matharray<C, N> cast() {
+    matharray<C, N> ans;
+    for (size_t i = 0; i < N; i++) {
+      ans[i] = (C)this->mItems[i];
+    }
+    return ans;
+  }
 
   const MType& operator+=(const MType& b) {
     for (size_t i = 0; i < N; i++) {
@@ -46,8 +54,8 @@ class matharray {
     return *this;
   }
 
-  MType operator+(const MType& b) { return MType(this->mItems) += b; }
-  MType operator+(T& b) { return MType(this->mItems) += b; }
+  MType operator+(const MType& b) { return MType(this) += b; }
+  MType operator+(T& b) { return MType(this) += b; }
 
   const MType& operator-=(const MType& b) {
     for (size_t i = 0; i < N; i++) {
@@ -56,7 +64,7 @@ class matharray {
     return *this;
   }
 
-  const MType& operator-=(T& b) {
+  const MType& operator-=(const T& b) {
     for (size_t i = 0; i < N; i++) {
       this->mItems[i] -= b;
     }
@@ -64,11 +72,11 @@ class matharray {
   }
 
   const MType operator-(const MType& b) {
-    MType ans(this->mItems);
+    MType ans(this);
     ans -= b;
     return ans;
   }
-  const MType& operator-(T& b) { return MType(this->mItems) -= b; }
+  const MType& operator-(T& b) { return MType(this) -= b; }
 
   MType& operator*=(const MType& b) {
     for (size_t i = 0; i < N; i++) {
@@ -84,8 +92,8 @@ class matharray {
     return *this;
   }
 
-  MType operator*(const MType& b) { return MType(this->mItems) *= b; }
-  MType operator*(const T& b) { return MType(this->mItems) *= b; }
+  MType operator*(const MType& b) { return MType(this) *= b; }
+  MType operator*(const T& b) { return MType(this) *= b; }
 
   MType& operator/=(const MType& b) {
     for (size_t i = 0; i < N; i++) {
@@ -101,18 +109,12 @@ class matharray {
     return *this;
   }
 
-  MType operator/(const MType& b) { return MType(this->mItems) /= b; }
-  MType operator/(const T& b) { return MType(this->mItems) /= b; }
+  MType operator/(const MType& b) { return MType(this) /= b; }
+  MType operator/(const T& b) { return MType(this) /= b; }
 
-  T operator[](size_t i) { return this->mItems[i]; }
+  T& operator[](size_t i) { return this->mItems[(i + N) % N]; }
 
-  T sum() {
-    T ans = T(0);
-    for (T i : this->mItems) {
-      ans += i;
-    }
-    return ans;
-  }
+  inline size_t lenght() const { return N; }
 
   void fill(MType& other) {
     for (size_t i = 0; i < N; i++) {
@@ -142,9 +144,38 @@ class matharray {
   }
 
   // iterator
-  T* begin() { return this->mItems.begin(); }
+  T* begin() { return this->mItems; }
 
-  T* end() { return this->mItems.end(); }
+  T* end() { return this->mItems + N; }
+
+  T sum() {
+    T ans = T(0);
+    for (T i : this->mItems) {
+      ans += i;
+    }
+    return ans;
+  }
+
+  void shuffle() {
+    for (int i = 0; i < (int)N - 1; i++) {
+      T t = mItems[i];
+      int j = rand() % (N - i) + i;
+      mItems[i] = mItems[j];
+      mItems[j] = t;
+    }
+  }
+
+  void shuffle(matharray<int, N>& index) {
+    for (int i = 0; i < (int)N; i++) {
+      T t = mItems[i];
+      int j = index[i];
+      if (j >= (int)N) {
+        continue;
+      }
+      mItems[i] = mItems[j];
+      mItems[j] = t;
+    }
+  }
 
   // static
   static matharray<T, N> sin(const matharray<T, N>& x) {

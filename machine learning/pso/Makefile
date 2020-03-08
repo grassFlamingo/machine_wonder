@@ -7,6 +7,7 @@ CC=gcc
 GPP=g++
 CFLAGS = -Wall -O3
 CFLAGS += -I "$(PWD)"
+CFLAGS += -I "$(PWD)/../lib"
 CFLAGS_END = -lGL -lGLU -lglut
 CCCOMP = $(CC) $(CFLAGS) -c
 

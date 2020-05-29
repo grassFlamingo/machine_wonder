@@ -7,6 +7,9 @@ class TestTRLS(unittest.TestCase):
         X = np.random.randn(3, 5, 6, 4)
         foldX = fold(X, 1)
         self.assertTupleEqual(foldX.shape, (5, 3*6*4))
+        nfoldx = X.transpose(1, 0, 2, 3).reshape(5, -1)
+        self.assertLessEqual(np.linalg.norm(foldX - nfoldx), 1e-8)
+
         unfX = unfold(foldX, 1, (3, 5, 6, 4))
         self.assertLessEqual(np.linalg.norm(X - unfX), 1e-8)
 
@@ -14,6 +17,12 @@ class TestTRLS(unittest.TestCase):
         self.assertTupleEqual(foldX.shape, (6, 3*5*4))
         unfX = unfold(foldX, 2, (3, 5, 6, 4))
         self.assertLessEqual(np.linalg.norm(X - unfX), 1e-8)
+
+        foldX = fold_modn(X, 2)
+        self.assertTupleEqual(foldX.shape, (6, 4*3*5))
+        unfX = unfold_moden(foldX, 2, (3, 5, 6, 4))
+        self.assertLessEqual(np.linalg.norm(X - unfX), 1e-8)
+
 
     def test_tensor_ring(self):
         G = [
@@ -45,4 +54,3 @@ class TestTRLS(unittest.TestCase):
         self.assertTupleEqual(trgn.shape, (3, 6*5*4))
         nrgn = fold(nrgn, 2)
         self.assertLessEqual(np.linalg.norm(nrgn - trgn), 1e-8)
-

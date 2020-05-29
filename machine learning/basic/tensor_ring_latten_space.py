@@ -33,8 +33,11 @@ ImageX = np.asarray(ImageX)
 # plt.show()
 # %%
 
-TensorX = np.reshape(ImageX, (16, 16, 16, 16, 3))
-mask = np.ones_like(TensorX)
+TensorX = np.reshape(ImageX, (16, 16, 16, 16, 3)) / 255.0
+mask = np.random.choice([True, False], size=(16, 16, 16, 16, 1), p=[0.5, 0.5])
+
+# plt.imshow(mask.reshape(16*16,16*16).astype(np.int8))
+# plt.show()
 
 # %%
 
@@ -75,7 +78,7 @@ def tensor_ring_low_rank_factors(T, mask, Rs):
             tmy = np.sum(mu * Ms[n] + Ys[n], axis=0)
             tmy = fold(tmy, 1)
             trng = tensor_ring_notn(Gs, n, 1)
-            txg = lamb * np.matmul(fold(X, n), trng)
+            txg = lamb * np.matmul(fold_modn(X, n), trng)
             tggi = lamb * np.matmul(trng.T, trng) + 3 * \
                 mu * np.eye(trng.shape[1])
             Gs[n] = unfold(
@@ -83,7 +86,8 @@ def tensor_ring_low_rank_factors(T, mask, Rs):
 
         # update M
         for n, i in itertools.product(range(numG), range(3)):
-            Ms[n][i] = singular_value_thresholding(Gs[n] - 1/mu * Ys[n][i], 1/mu)
+            tm = singular_value_thresholding(fold(Gs[n] - 1/mu * Ys[n][i], i), 1/mu)
+            Ms[n][i] = unfold(tm, i, Ms[n][i].shape)
 
         # update X
         X = T * mask + tensor_ring(Gs) * (~mask)
@@ -94,12 +98,16 @@ def tensor_ring_low_rank_factors(T, mask, Rs):
             
 
         mu = max(rho * mu, mumax)
-        if np.linalg.norm(X - Xlast) / np.linalg.norm(X) < tol:
+        err = np.linalg.norm(X - Xlast) / np.linalg.norm(X)
+        print("epho", k, "error", err)
+        if err < tol:
             break
 
     return X, Gs
 
 X, Gs = tensor_ring_low_rank_factors(TensorX, mask, [2]*len(TensorX.shape))
 
-print(X)
-print(Gs)
+print("Got X")
+X = np.reshape(X, (16*16, 16*16, 3))
+plt.imshow(X)
+plt.show()

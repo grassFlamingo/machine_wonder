@@ -57,29 +57,67 @@ class Linear(SimpleLayer):
         return self.cache_in
 
 
+class Embbed(SimpleLayer):
+    """
+    take integer as input
+    """
+
+    def __init__(self, in_dimension, emb_dimension):
+        super().__init__()
+        self.mat = SimpleVariable.randn(
+            in_dimension, emb_dimension, auto_grad=True)
+
+    def forward(self, x: SimpleVariable):
+        """
+        x in shape [N, 1] dtype int
+        """
+        return SimpleVariable(self.mat.data[x.data])
+
+    def backward(self, df):
+        return df
+
+###########################################################################
+# Activation
+
+
 class Sigmoid(SimpleLayer):
 
     def forward(self, x: SimpleVariable):
         ex = np.exp(-x.data)
-
         out = 1 / (1 + ex)
-
         out = SimpleVariable(out)
-
         self.cache_in = x
         self.cache_out = out
         self.cache_ex = ex
-
         return out
 
     def backward(self, df: SimpleVariable):
         out = self.cache_out.data
-
         dx = self.cache_ex * out * out
-
-        self.cache_in.grad = df.grad * dx
-
+        self.cache_in.grad += df.grad * dx
         del self.cache_out, self.cache_ex
+        return self.cache_in
+
+
+class SoftMax(SimpleLayer):
+    """
+        e^{x_i} 
+    --------------
+    \sum_i e^{x_i}
+    """
+
+    def forward(self, x):
+        # previent inf
+        ex = np.exp(x.data - np.max(x.data))
+        out = ex / (np.sum(ex, axis=1, keepdims=True) + 1e-8)
+        self.cache_in = x
+        self.cache_out = out
+        return SimpleVariable(out)
+
+    def backward(self, df):
+        dx = self.cache_out * (1 - self.cache_out)
+        self.cache_in.grad += df.grad * dx
+        del self.cache_out
         return self.cache_in
 
 

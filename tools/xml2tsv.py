@@ -1,13 +1,8 @@
-import gc
 import os
 import html
 import argparse
 import collections
 import defusedxml.ElementTree as DET
-
-class UnescapeEntity():
-    def __getitem__(self, key):
-        return html.unescape(key)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-x", "--xml", type=str, help="The XML File")
@@ -17,6 +12,11 @@ parser.add_argument("-s", "--speparator", type=str, default="\t", help="the sepa
 parser.add_argument("-o", "--output", type=str, default=None, help="output file.")
 parser.add_argument("-d", "--dtd", type=str, default=None, help="The dtd file. All avaliable files will be listed")
 args = parser.parse_args()
+
+
+class UnescapeEntity():
+    def __getitem__(self, key):
+        return html.unescape(key)
 
 parser = DET.XMLParser()
 parser.parser.UseForeignDTD(True)
@@ -100,7 +100,7 @@ if outfilename is None:
 
 tsvOut = open(outfilename, "w")
 tsvOut.write(args.speparator.join(allfields))
-tsvOut.write("\n")
+tsvOut.write("\r\n")
 tsvOut.flush()
 
 vaildfield = False
@@ -110,21 +110,16 @@ for event, node in DET.iterparse(args.xml, parser=parser):
     if node.tag == args.tag and vaildfield:
         vaildfield = False
         # write
-        ibg = dictGlobal[node.tag]
-        tsvOut.write(args.speparator.join(buflistGlobal[ibg]))
-        tsvOut.write("\n")
+        tsvOut.write(args.speparator.join(buflistGlobal))
+        tsvOut.write("\r\n")
 
         index += 1
-
+        if index % 256 == 0:
+            print("\rrunning {}".format(index), end="")
         # clear current dict
         buflistGlobal.clear()
         del buflistGlobal
         buflistGlobal = ["" for _ in allfields]
-        if index % (1<<10) == 0:
-            print("\rrunning {}".format(index).ljust(8), end="")
-            gc.collect()
-            tsvOut.flush()
-
 
     else:
         text = node.text # type: str
@@ -137,6 +132,7 @@ for event, node in DET.iterparse(args.xml, parser=parser):
             buflistGlobal[ibg] += ", " + text
         else:
             buflistGlobal[ibg] = text
+    node.clear() # clear this node; very important
         
 tsvOut.close()
 

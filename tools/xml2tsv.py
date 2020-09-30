@@ -1,3 +1,5 @@
+#! python
+
 import os
 import html
 import argparse
@@ -6,13 +8,12 @@ import defusedxml.ElementTree as DET
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-x", "--xml", type=str, help="The XML File")
-parser.add_argument("-t", "--tag", type=str, help="The tag")
+parser.add_argument("-t", "--tagdepth", type=int, default=1, help="The depth of root tag")
 parser.add_argument("-k", "--keepfield", type=str, default="", help="fileds to keep, split by comma ',' ")
 parser.add_argument("-s", "--speparator", type=str, default="\t", help="the separator between each field. Please don't use comma ',' ")
 parser.add_argument("-o", "--output", type=str, default=None, help="output file.")
 parser.add_argument("-d", "--dtd", type=str, default=None, help="The dtd file. All avaliable files will be listed")
 args = parser.parse_args()
-
 
 class UnescapeEntity():
     def __getitem__(self, key):
@@ -103,41 +104,44 @@ tsvOut.write(args.speparator.join(allfields))
 tsvOut.write("\r\n")
 tsvOut.flush()
 
-vaildfield = False
+tagstack = []
 index = 0
-for event, node in DET.iterparse(args.xml, parser=parser):
+for event, node in DET.iterparse(args.xml, parser=parser, events=["start", "end"]):
+    if event == 'start':
+        tagstack.append(node.tag)
+        continue
+        
     # print(event, node.tag)
-    if node.tag == args.tag and vaildfield:
-        vaildfield = False
+    if args.tagdepth == len(tagstack):
         # write
         tsvOut.write(args.speparator.join(buflistGlobal))
         tsvOut.write("\r\n")
 
         index += 1
-        if index % 256 == 0:
-            print("\rrunning {}".format(index), end="")
+        if index % 2048 == 0:
+            print("\rrunning {} {}".format(index, tagstack[-1]).ljust(64), end="")
         # clear current dict
         buflistGlobal.clear()
         del buflistGlobal
         buflistGlobal = ["" for _ in allfields]
-
-    else:
+        tagstart = True
+    elif len(tagstack) > args.tagdepth:
         text = node.text # type: str
         if (text is None) or text.isspace() or (not node.tag in dictGlobal):
+            node.clear() # clear this node; very important
+            tagstack.pop(-1)
             continue
-        vaildfield = True
         text = text.strip().replace("\n", "").replace("\t", " ")
         ibg = dictGlobal[node.tag]
-        if buflistGlobal[ibg] != "":
+        if len(buflistGlobal[ibg]) == 0:
+            buflistGlobal[ibg] = text
+        elif len(buflistGlobal[ibg]) < (1<<16):
             buflistGlobal[ibg] += ", " + text
         else:
-            buflistGlobal[ibg] = text
+            # string is toooo long, simpply skip
+            print("[warnning] string is too long", node.tag, text)
+
     node.clear() # clear this node; very important
+    tagstack.pop(-1)
         
 tsvOut.close()
-
-
-
-
-
-

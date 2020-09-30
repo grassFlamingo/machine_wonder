@@ -101,7 +101,7 @@ if outfilename is None:
 
 tsvOut = open(outfilename, "w", encoding="utf-8")
 tsvOut.write(args.speparator.join(allfields))
-tsvOut.write("\r\n")
+tsvOut.write(os.linesep)
 tsvOut.flush()
 
 tagstack = []
@@ -115,7 +115,7 @@ for event, node in DET.iterparse(args.xml, parser=parser, events=["start", "end"
     if args.tagdepth == len(tagstack):
         # write
         tsvOut.write(args.speparator.join(buflistGlobal))
-        tsvOut.write("\r\n")
+        tsvOut.write(os.linesep)
 
         index += 1
         if index % 2048 == 0:
@@ -131,7 +131,7 @@ for event, node in DET.iterparse(args.xml, parser=parser, events=["start", "end"
             node.clear() # clear this node; very important
             tagstack.pop(-1)
             continue
-        text = text.strip().replace("\n", "").replace("\t", " ")
+        text = text.strip().replace("\n", "").replace(args.speparator, " ")
         ibg = dictGlobal[node.tag]
         if len(buflistGlobal[ibg]) == 0:
             buflistGlobal[ibg] = text

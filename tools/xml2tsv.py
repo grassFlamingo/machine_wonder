@@ -99,7 +99,7 @@ if outfilename is None:
         else:
             cnt += 1
 
-tsvOut = open(outfilename, "w")
+tsvOut = open(outfilename, "w", encoding="utf-8")
 tsvOut.write(args.speparator.join(allfields))
 tsvOut.write("\r\n")
 tsvOut.flush()

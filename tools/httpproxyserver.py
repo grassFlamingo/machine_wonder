@@ -1,6 +1,13 @@
 import asyncio
 import urllib.parse
 import logging
+import argparse
+
+parser = argparse.ArgumentParser(description='Http Proxy Server')
+parser.add_argument("--bind", "-b", type=str, default="0.0.0.0", help="address to bind, default is 0.0.0.0")
+parser.add_argument('--port', "-p", type=int, default=8080, help='ports to listen, default is 8080')
+
+args = parser.parse_args()
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -22,7 +29,13 @@ async def handle_ssl(client_reader: asyncio.StreamReader,
                              client_writer: asyncio.StreamWriter, hostport,
                              **kwargs):
     logging.info(f"[start] -> {hostport}")
-    remote_reader, remote_writer = await asyncio.open_connection(*hostport)
+    try:
+        remote_reader, remote_writer = await asyncio.open_connection(*hostport)
+    except Exception as e:
+        logging.error(e)
+        remote_writer.close()
+        logging.info(f"[end] <- {hostport}")
+        return
 
     resp = f"{kwargs['httpversion']} 200 Connection established\r\nProxy-agent: Netscape-Proxy/1.1\r\n\r\n"
     client_writer.write(resp.encode())
@@ -42,7 +55,14 @@ async def handle_http(client_reader: asyncio.StreamReader,
                               client_writer: asyncio.StreamWriter, hostport,
                               **kwargs):
     logging.info(f"[start] -> {hostport}")
-    remote_reader, remote_writer = await asyncio.open_connection(*hostport)
+    try:
+        remote_reader, remote_writer = await asyncio.open_connection(*hostport)
+    except Exception as e:
+        logging.error(e)
+        remote_writer.close()
+        logging.info(f"[end] <- {hostport}")
+        return
+
     remote_writer.write(kwargs['headraw'])
 
     try:
@@ -90,11 +110,10 @@ async def handle_queries(client_reader: asyncio.StreamReader,
     client_writer.close()
 
 
-HOST, PORT = "0.0.0.0", 7788
 loop = asyncio.get_event_loop()
 server = loop.run_until_complete(
-    asyncio.start_server(handle_queries, HOST, PORT))
-logging.info(f"[system] running on {HOST}:{PORT}")
+    asyncio.start_server(handle_queries, args.bind, args.port))
+logging.info(f"[system] running http proxy on http://{args.bind}:{args.port}")
 
 try:
     loop.run_forever()

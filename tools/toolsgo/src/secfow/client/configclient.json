@@ -1,0 +1,15 @@
+{
+    "server": "127.0.0.1",
+    "port": "9090",
+    "token": "iepoqremfcrbfuygqhr847y18u984urnfecdnfvrhengu4tyuh438y48rhfrrnubvnuergnvrfhbv jhrgb43uyr874gfhvbuf",
+    "apps": [
+        {
+            "localport": ":8890",
+            "remoteaddr": "127.0.0.1:8888"
+        },
+        {
+            "localport": ":8891",
+            "remoteaddr": ":8889"
+        }
+    ]
+}

@@ -11,6 +11,7 @@ uxip.meizu.com
 *.flyme.cn
 u.meizu.com
 y.meizu.com
+g.meizu.com
 api-game.meizu.com
 upush.meizu.com
 aider.meizu.com
@@ -28,7 +29,7 @@ compaign.meizu.com
 *.ydstatic.com
 *.speech.sogou.com
 cfg.imtt.qq.com
-
+*.miaozhen.com
 *.f.360.cn
 
 sdk-log.youdao.com
@@ -40,11 +41,23 @@ nstool.netease.com
 *.nstool.laiqukankan.com
 *.nstool.yqkk.link
 api.iplay.163.com
-p3.music.126.net
+p1.music.126.net
+p2.music.126.net
+p4.music.126.net
 p5.music.126.net
+p6.music.126.net
+pl.music.163.com
+d3.music.126.net
+d4.music.126.net
+m7.music.126.net
+mam.netease.com
+mam6.netease.com
 clientlog3.music.163.com
-#interface3.music.163.com
+iadmusicmat.music.126.net
+# about music stream
+# interface3.music.163.com
 *.vod.126.net
+crash.163.com
 
 # wechat
 # wxsnsdythumb.wxs.qq.com
@@ -75,11 +88,14 @@ fclick.baidu.com
 125.88.254.225
 203.209.250.3
 *.uc.cn
+amdc.m.taobao.com
+*.ucweb.com
 
 # ads
 *.biddingx.com
 gorgon.youdao.com
 dsp-impr2.youdao.com
+enjoy.abchina.com
 
 # maps
 *.amap.com

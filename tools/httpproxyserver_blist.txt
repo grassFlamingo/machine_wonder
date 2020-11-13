@@ -18,7 +18,7 @@ aider.meizu.com
 uxinphone.meizu.com
 tongji.meizu.com
 sagitta.meizu.com
-safe.mzres.com
+*.mzres.com
 compaign.meizu.com
 
 

@@ -1,0 +1,103 @@
+# the block list for httpproxyserver; separate by \n
+# regular expression is supported
+
+# meizu
+*.zookingsoft.com
+# *.meizu.com
+developer.meizu.com
+api-push.meizu.com
+servicecut.meizu.com
+uxip.meizu.com
+*.flyme.cn
+u.meizu.com
+y.meizu.com
+api-game.meizu.com
+upush.meizu.com
+aider.meizu.com
+uxinphone.meizu.com
+tongji.meizu.com
+sagitta.meizu.com
+safe.mzres.com
+compaign.meizu.com
+
+
+# 3-pard
+*.pos.baidu.com
+*.msg.xiaomi.net
+*.youzan.com
+*.ydstatic.com
+*.speech.sogou.com
+cfg.imtt.qq.com
+
+*.f.360.cn
+
+sdk-log.youdao.com
+hubble.netease.com
+
+# netease
+nstool.netease.com
+*.nstool.321fenx.com
+*.nstool.laiqukankan.com
+*.nstool.yqkk.link
+api.iplay.163.com
+p3.music.126.net
+p5.music.126.net
+clientlog3.music.163.com
+#interface3.music.163.com
+*.vod.126.net
+
+# wechat
+# wxsnsdythumb.wxs.qq.com
+*.wxs.qq.com
+wx.qlogo.cn
+dnet.mb.qq.com
+dldir1.qq.com
+
+# baidu
+*.bdstatic.com
+*.bdstatic.com
+ss0.baidu.com
+ss1.baidu.com
+ss2.baidu.com
+hm.baidu.com
+hpd.baidu.com
+ext.baidu.com
+als.baidu.com
+feed.baidu.com
+ada.baidu.com
+fclick.baidu.com
+
+
+# alipay
+203.209.245.120
+203.107.1.1
+120.77.134.113
+125.88.254.225
+203.209.250.3
+*.uc.cn
+
+# ads
+*.biddingx.com
+gorgon.youdao.com
+dsp-impr2.youdao.com
+
+# maps
+*.amap.com
+
+# logs
+ulogs.umeng.com
+log.yex.youdao.com
+*.qingmang.mobi
+
+# unknown
+pp.myapp.com
+*.bizport.cn
+beacons3.gvt2.com
+127.0.0.1
+m.galaxy-immi.com
+*.go2yd.com
+113.113.98.20
+118.190.190.61
+118.190.125.55
+118.190.131.253
+114.215.68.98

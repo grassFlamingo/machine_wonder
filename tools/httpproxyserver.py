@@ -66,8 +66,12 @@ class URLTree:
             ans = self.search(item)
             if ans != None:
                 return ans
-            self.nodes.append(URLTree.TNode(item))
-            return self.nodes[-1]
+            ans = URLTree.TNode(item)
+            if item == "*":
+                # just rewrite anything with * 
+                self.nodes.clear()
+            self.nodes.append(ans)
+            return ans
 
         def __str__(self, index=1) -> str:
             ans = self.name + "\n"

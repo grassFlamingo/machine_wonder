@@ -14,13 +14,18 @@ y.meizu.com
 g.meizu.com
 api-game.meizu.com
 upush.meizu.com
-aider.meizu.com
+# about wether
+# aider.meizu.com
 uxinphone.meizu.com
 tongji.meizu.com
 sagitta.meizu.com
 *.mzres.com
+wifiportal.meizu.com
 compaign.meizu.com
-
+lastmile.meizu.com
+errlog.umeng.com
+dw-reader.meizu.com
+reader.meizu.com
 
 # 3-pard
 *.pos.baidu.com
@@ -31,6 +36,9 @@ compaign.meizu.com
 cfg.imtt.qq.com
 *.miaozhen.com
 *.f.360.cn
+*.oppomobile.com
+bdapi-ads.oneplusmobile.com
+*.shouji.sogou.com
 
 sdk-log.youdao.com
 hubble.netease.com
@@ -41,9 +49,9 @@ nstool.netease.com
 *.nstool.laiqukankan.com
 *.nstool.yqkk.link
 api.iplay.163.com
-p1.music.126.net
+# p1.music.126.net
 p2.music.126.net
-p4.music.126.net
+# p4.music.126.net
 p5.music.126.net
 p6.music.126.net
 pl.music.163.com
@@ -62,16 +70,21 @@ crash.163.com
 # wechat
 # wxsnsdythumb.wxs.qq.com
 *.wxs.qq.com
-wx.qlogo.cn
 dnet.mb.qq.com
 dldir1.qq.com
+log.tbs.qq.com
+*.bugly.qq.com
+*.imtt.qq.com
 
 # baidu
-*.bdstatic.com
-*.bdstatic.com
+dss1.bdstatic.com
+dss2.bdstatic.com
 ss0.baidu.com
 ss1.baidu.com
 ss2.baidu.com
+t7.baidu.com
+t8.baidu.com
+t9.baidu.com
 hm.baidu.com
 hpd.baidu.com
 ext.baidu.com
@@ -79,6 +92,7 @@ als.baidu.com
 feed.baidu.com
 ada.baidu.com
 fclick.baidu.com
+vdposter.bdstatic.com
 
 
 # alipay
@@ -87,6 +101,7 @@ fclick.baidu.com
 120.77.134.113
 125.88.254.225
 203.209.250.3
+203.209.255.239
 *.uc.cn
 amdc.m.taobao.com
 *.ucweb.com
@@ -106,6 +121,7 @@ log.yex.youdao.com
 *.qingmang.mobi
 
 # unknown
+*.50union.com
 pp.myapp.com
 *.bizport.cn
 beacons3.gvt2.com

@@ -18,10 +18,10 @@ r"""
 """
 import asyncio
 import os
-import re
 import urllib.parse
 import logging
 import argparse
+from urltree import URLTree
 
 parser = argparse.ArgumentParser(description='Http Proxy Server')
 parser.add_argument("--bind", "-b", type=str, default="0.0.0.0",
@@ -36,94 +36,6 @@ args = parser.parse_args()
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s %(filename)s %(levelname)s: %(message)s')
-
-
-class URLTree:
-    """
-    ref: rfc1035
-
-    <letters> := a-zA-Z
-    <digit> := 0-9
-    <hyp> := -
-    """
-
-    class TNode:
-        def __init__(self, name="*") -> None:
-            self.nodes = []
-            self.name = name
-
-        def search(self, item):
-            if len(self.nodes) > 0 and self.nodes[0] == "*":
-                return self
-            if item is None:
-                return None
-            for n in self.nodes:
-                if n == item:
-                    return n
-            return None
-
-        def append(self, item: str):
-            ans = self.search(item)
-            if ans != None:
-                return ans
-            ans = URLTree.TNode(item)
-            if item == "*":
-                # just rewrite anything with * 
-                self.nodes.clear()
-            self.nodes.append(ans)
-            return ans
-
-        def __str__(self, index=1) -> str:
-            ans = self.name + "\n"
-            if len(self.nodes) == 0:
-                return ans
-
-            for n in self.nodes:
-                ans += " "*index + n.__str__(index+1)
-            return ans
-
-        def __eq__(self, other):
-            if isinstance(other, str):
-                return other == self.name
-            elif isinstance(other, self.__class__):
-                return other.name == self.name
-            else:
-                return False
-
-    def __init__(self) -> None:
-        self.urlnodes = URLTree.TNode("@ROOT")
-        self.reg = re.compile("([*a-zA-Z0-9\\-]+\\.)+[a-zA-Z0-9]")
-
-    def __str__(self) -> str:
-        return f"URLTree:\n{self.urlnodes}"
-
-    def push_url(self, hostname: str) -> None:
-        if not self.reg.match(hostname):
-            # not a host name
-            logging.error(f"[not a hostname] {hostname}")
-            return
-
-        subdomains = hostname.split(".")
-        tn = self.urlnodes
-
-        # in reverse order
-        for sd in reversed(subdomains):
-            tn = tn.append(sd)
-
-    def __contains__(self, hostname):
-        if not self.reg.match(hostname):
-            # not a host name
-            logging.error(f"[not a hostname] {hostname}")
-            return
-        subdomains = hostname.split(".")
-        tn = self.urlnodes
-        for sd in reversed(subdomains):
-            _tn = tn.search(sd)
-            if _tn is None:
-                # if sd is * match all
-                return "*" == tn
-            tn = _tn
-        return True
 
 
 GBlockTree = URLTree()  # global block tree

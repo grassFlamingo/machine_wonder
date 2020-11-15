@@ -40,9 +40,10 @@ cfg.imtt.qq.com
 *.oppomobile.com
 bdapi-ads.oneplusmobile.com
 *.shouji.sogou.com
-
+static.hdslb.com
 sdk-log.youdao.com
 hubble.netease.com
+*.jpush.cn
 
 # netease
 nstool.netease.com
@@ -104,6 +105,7 @@ vdposter.bdstatic.com
 125.88.254.225
 203.209.250.3
 203.209.255.239
+203.209.247.64
 *.uc.cn
 amdc.m.taobao.com
 *.ucweb.com

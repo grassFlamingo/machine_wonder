@@ -78,6 +78,7 @@ dldir1.qq.com
 log.tbs.qq.com
 *.bugly.qq.com
 *.imtt.qq.com
+js.aq.qq.com
 
 # baidu
 dss1.bdstatic.com
@@ -115,6 +116,8 @@ amdc.m.taobao.com
 gorgon.youdao.com
 dsp-impr2.youdao.com
 enjoy.abchina.com
+ads.95516.com
+analytics.95516.com
 
 # maps
 *.amap.com
@@ -137,3 +140,4 @@ m.galaxy-immi.com
 118.190.125.55
 118.190.131.253
 114.215.68.98
+183.232.149.31

@@ -12,7 +12,10 @@ uxip.meizu.com
 u.meizu.com
 y.meizu.com
 g.meizu.com
+p.meizu.com
+p-sz.meizu.com
 api-game.meizu.com
+hades.meizu.com
 upush.meizu.com
 # about wether
 # aider.meizu.com

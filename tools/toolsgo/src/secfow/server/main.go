@@ -23,34 +23,34 @@ func init() {
 	secfow.InitLog()
 }
 
-func handshake(conn *secfow.SConnect) (err error) {
+func handshake(conn *secfow.SConnect) (rmConn net.Conn, err error) {
 	buff := make([]byte, 1024)
 
 	// wait hello
 	n, err := conn.Read(buff)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if !bytes.Contains(buff, secfow.CodeHelloB) {
-		return errors.New("Not a hello")
+		return nil, errors.New("Not a hello")
 	}
 
 	// send hello back
 	n, err = conn.Write(secfow.PackWithRandChars(secfow.CodeHello, true))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// wait changekey
 	n, err = conn.Read(buff)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if strings.Index(string(buff), secfow.CodeChangeKey) != 0 {
 		log.Println("Not Change a key")
-		return errors.New("Not Change a key")
+		return nil, errors.New("Not Change a key")
 	}
 
 	randC1 := make([]byte, n-len(secfow.CodeChangeKey))
@@ -75,7 +75,7 @@ func handshake(conn *secfow.SConnect) (err error) {
 	}
 
 	if n < len(randC2) || !bytes.Equal(buff[0:len(randC2)], randC2) {
-		return errors.New("Not RanC2")
+		return nil, errors.New("Not RanC2")
 	}
 
 	if n == len(randC2) {
@@ -83,11 +83,11 @@ func handshake(conn *secfow.SConnect) (err error) {
 		// just send randC1 back using new key
 		conn.Write(randC1)
 		conn.Close()
-		return nil
+		return nil, nil
 	}
 
 	rmaddr := string(buff[len(randC2):n])
-	rmConn, err := net.Dial("tcp", rmaddr)
+	rmConn, err = net.Dial("tcp", rmaddr)
 
 	// log.Println("randC1", randC1)
 	n = copy(buff, randC1)
@@ -95,16 +95,12 @@ func handshake(conn *secfow.SConnect) (err error) {
 		buff[n] = 0
 		conn.Write(buff[0 : n+1])
 		log.Println("[>-<]", err)
-		return err
+		return nil, err
 	}
 
 	buff[n] = 1
 	conn.Write(buff[0 : n+1])
-	log.Println("[<->]", rmaddr)
-	go secfow.BuildPipe(conn, rmConn)
-	go secfow.BuildPipe(rmConn, conn)
-
-	return nil
+	return rmConn, nil
 }
 
 func main() {
@@ -124,7 +120,7 @@ func main() {
 		log.Fatal("Not a json file", err)
 	}
 
-	secfow.SetToken(conf.Token)
+	service := secfow.NewFowService(conf.Token)
 
 	bindaddr := fmt.Sprintf("%s:%s", conf.Bind, conf.Port)
 	// open connection
@@ -143,7 +139,21 @@ func main() {
 			// handle error
 			continue
 		}
-		err = handshake(secfow.NewSconnectC(conn))
+		sConn := service.NewSConnectC(conn)
+		rConn, err := handshake(sConn)
+		if err != nil {
+			log.Println("[handshape error]", err)
+			continue
+		}
+
+		if rConn == nil {
+			continue
+		}
+
+		log.Println("[<->]", rConn.RemoteAddr().String())
+		go secfow.BuildPipe(sConn, rConn)
+		go secfow.BuildPipe(rConn, sConn)
+
 		if err != nil {
 			log.Println("[error]", err)
 			conn.Close()

@@ -1,15 +1,27 @@
 {
-    "server": "127.0.0.1",
-    "port": "9090",
-    "token": "iepoqremfcrbfuygqhr847y18u984urnfecdnfvrhengu4tyuh438y48rhfrrnubvnuergnvrfhbv jhrgb43uyr874gfhvbuf",
-    "apps": [
+    "version": "1.0",
+    "services": [
         {
-            "localport": ":8890",
-            "remoteaddr": "127.0.0.1:8888"
+            "server": "127.0.0.1",
+            "port": "9090",
+            "token": "iepoqremfcrbfuygqhr847y18u984urnfecdnfvrhengu4tyuh438y48rhfrrnubvnuergnvrfhbv jhrgb43uyr874gfhvbuf",
+            "apps": [
+                {
+                    "localport": ":8888",
+                    "remoteaddr": "127.0.0.1:8888"
+                }
+            ]
         },
         {
-            "localport": ":8891",
-            "remoteaddr": ":8889"
+            "server": "10.23.14.127",
+            "port": "9090",
+            "token": "739719dnvavunviefnbvierhvovdsmvdnvdsfewgfbvc3872498324302rujhdncjdsfnvc bcndcnekncjh bcv",
+            "apps": [
+                {
+                    "localport": ":8888",
+                    "remoteaddr": "127.0.0.1:8888"
+                }
+            ]
         }
     ]
 }

@@ -7,6 +7,8 @@ import (
 	"testing"
 )
 
+var gFowService = FowService{}
+
 func TestPackWithRandChars(t *testing.T) {
 	const ts = "dndsakfjnknfkjnfnfnfkdsnfkdsnfknfknfknfk"
 
@@ -44,7 +46,7 @@ func testrwListener(t *testing.T, ser net.Listener) {
 		t.Fatal(err)
 	}
 
-	scn := NewSconnectC(con)
+	scn := gFowService.NewSConnectC(con)
 	buff := make([]byte, 1024)
 	defer scn.Close()
 
@@ -58,7 +60,7 @@ func testrwListener(t *testing.T, ser net.Listener) {
 }
 
 func TestReadWrite(t *testing.T) {
-	SetToken("abcdefg")
+	gFowService = NewFowService("abcdefg")
 	ser, err := net.Listen("tcp", ":0")
 	if err != nil {
 		t.Fatal(err)
@@ -73,7 +75,7 @@ func TestReadWrite(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	scli := NewSconnectC(cli)
+	scli := gFowService.NewSConnectC(cli)
 	defer scli.Close()
 
 	buff := make([]byte, 1024)

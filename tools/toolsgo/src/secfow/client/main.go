@@ -13,16 +13,23 @@ import (
 	"strings"
 )
 
-type configapp struct {
+type appConf struct {
 	Localport  string `json:"localport"`
-	Remoteaddr string `json:"remoteaddr"`
+	RemoteAddr string `json:"remoteaddr"`
+
+	FowService secfow.FowService // service
+}
+
+type serviceConf struct {
+	Server string    `json:"server"` // server address for this app only
+	Port   string    `json:"port"`   // server port for this app only
+	Token  string    `json:"token"`  // server token for this app only
+	Apps   []appConf `json:"apps"`   // the app list
 }
 
 type config struct {
-	Server string      `json:"server"`
-	Port   string      `json:"port"`
-	Token  string      `json:"token"`
-	Apps   []configapp `json:"apps"`
+	Version  string        `json:"version"`
+	Services []serviceConf `json:"services"`
 }
 
 func init() {
@@ -94,42 +101,38 @@ func handshake(scnn *secfow.SConnect, remoteaddr string) (err error) {
 	return nil
 }
 
-func serveLocalOnce(conn net.Conn, remoteaddr string, serveraddr string) {
-
-	sonn, err := secfow.NewSconnect(serveraddr)
-
-	if err != nil {
-		log.Println("Connect to server fail", err)
-		return
-	}
-
-	err = handshake(sonn, remoteaddr)
-	if err != nil {
-		log.Println("Handshake error", err)
-		return
-	}
-
-	log.Println("[<->]", conn.LocalAddr(), "->", sonn.RemoteAddr())
-
-	go secfow.BuildPipe(sonn, conn)
-	go secfow.BuildPipe(conn, sonn)
-
-}
-
-func serveLocal(app configapp, serveraddr string) {
-	lser, err := net.Listen("tcp", app.Localport)
+func serveLocal(app appConf, serveraddr string) {
+	ser, err := net.Listen("tcp", app.Localport)
 	if err != nil {
 		log.Println("Cannot Bind Port", app.Localport)
 		return
 	}
 	for {
-		conn, err := lser.Accept()
+		conn, err := ser.Accept()
 
 		if err != nil {
 			log.Println("Listen Error", err)
 			continue
 		}
-		serveLocalOnce(conn, app.Remoteaddr, serveraddr)
+
+		sonn, err := app.FowService.NewSConnect(serveraddr)
+		if err != nil {
+			log.Println("Cannot connect to Server:", serveraddr)
+			continue
+		}
+
+		// serveLocalOnce(conn, app.RemoteAddr, serveraddr)
+
+		err = handshake(sonn, app.RemoteAddr)
+		if err != nil {
+			log.Println("Handshake error", err)
+			continue
+		}
+
+		log.Println("[<->]", conn.LocalAddr(), "->", sonn.RemoteAddr())
+
+		go secfow.BuildPipe(sonn, conn)
+		go secfow.BuildPipe(conn, sonn)
 	}
 }
 
@@ -139,7 +142,7 @@ func main() {
 		return
 	}
 
-	_fbyte, err := ioutil.ReadFile(os.Args[1])
+	_jsonbyte, err := ioutil.ReadFile(os.Args[1])
 	if err != nil {
 		log.Fatal("Not a configure file", err)
 	} else {
@@ -147,30 +150,42 @@ func main() {
 	}
 
 	conf := &config{}
-	err = json.Unmarshal(_fbyte, conf)
+	err = json.Unmarshal(_jsonbyte, conf)
 	if err != nil {
 		log.Fatal("Not a json file", err)
 	}
-	log.Printf("Server: %s\nPort: %s\nApps: %+v\n", conf.Server, conf.Port, conf.Apps)
-	secfow.SetToken(conf.Token)
-
-	// try connect to server
-	serveraddr := fmt.Sprintf("%s:%s", conf.Server, conf.Port)
-	cnn, err := secfow.NewSconnect(serveraddr)
-	if err != nil {
-		log.Fatal("Cannot Connect", err)
-	}
-	err = handshake(cnn, "")
-	cnn.Close()
-
-	if err != nil {
-		// hand hake error
-		log.Fatal("Hand shake error ", err)
-	}
 
 	// Listen Local ports
-	for _, app := range conf.Apps {
-		go serveLocal(app, serveraddr)
+	for _, ser := range conf.Services {
+
+		log.Printf("Service: %s:%s\n", ser.Server, ser.Port)
+
+		// try connect to server
+		serveraddr := fmt.Sprintf("%s:%s", ser.Server, ser.Port)
+
+		fowService := secfow.NewFowService(ser.Token)
+
+		cnn, err := fowService.NewSConnect(serveraddr)
+
+		if err != nil {
+			log.Println("Cannot Connect", err)
+			continue
+		}
+		err = handshake(cnn, "")
+		cnn.Close()
+
+		if err != nil {
+			// hand hake error
+			log.Println("Hand shake error ", err)
+			continue
+		}
+
+		for _, app := range ser.Apps {
+			log.Printf("%s -> (%s) -> %s", app.Localport, serveraddr, app.RemoteAddr)
+			app.FowService = fowService
+			go serveLocal(app, serveraddr)
+		}
+
 	}
 	// this will wait forever
 	select {}

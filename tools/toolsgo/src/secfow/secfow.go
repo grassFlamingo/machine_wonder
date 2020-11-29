@@ -9,8 +9,8 @@ import (
 	"time"
 )
 
-// Configure the configure for secfow
-type Configure struct {
+// FowService the configure for secfow
+type FowService struct {
 	ConnList []SConnect
 	key      []byte
 }
@@ -40,9 +40,6 @@ var CodeChangeKeyB []byte = []byte(CodeChangeKey)
 
 // CriperKeyLen length os cripe key
 const CriperKeyLen int = 256
-
-// gConfigure global configure setting
-var gConfigure Configure
 
 // InitLog init golog system
 func InitLog() {
@@ -130,25 +127,27 @@ func BuildPipe(netin net.Conn, netout net.Conn) {
 
 }
 
-// SetToken setup token
-func SetToken(token string) {
-	gConfigure.key = tokenToKey(token)
+// NewFowService create a app config by token
+func NewFowService(token string) (conf FowService) {
+	conf = FowService{}
+	conf.key = tokenToKey(token)
+	return conf
 }
 
-// NewSconnect get a new Sconnection
-func NewSconnect(addr string) (scnn *SConnect, err error) {
+// NewSConnect get a new SConnection
+func (conf *FowService) NewSConnect(addr string) (scnn *SConnect, err error) {
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		return nil, err
 	}
-	return &SConnect{conn: conn, iocrip: newiocrip(gConfigure.key)}, nil
+	return &SConnect{conn: conn, iocrip: newiocrip(conf.key)}, nil
 }
 
-// NewSconnectC new Sconnect using net.Conn
-func NewSconnectC(conn net.Conn) (scnn *SConnect) {
+// NewSConnectC new SConnect using net.Conn
+func (conf *FowService) NewSConnectC(conn net.Conn) (scnn *SConnect) {
 	return &SConnect{
 		conn:   conn,
-		iocrip: newiocrip(gConfigure.key),
+		iocrip: newiocrip(conf.key),
 	}
 }
 

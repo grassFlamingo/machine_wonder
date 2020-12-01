@@ -47,6 +47,13 @@ static.hdslb.com
 sdk-log.youdao.com
 hubble.netease.com
 *.jpush.cn
+analytics.aty.sohu.com
+*.cdn.sohucs.com
+api.passport.sohu.com
+*.ldd.sohu.com
+*.vod.tv.itc.cn
+*.my.tv.sohu.com
+qm.hd.sohu.com.cn
 
 # netease
 nstool.netease.com

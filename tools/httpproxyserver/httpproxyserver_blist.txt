@@ -30,6 +30,8 @@ errlog.umeng.com
 dw-reader.meizu.com
 reader.meizu.com
 push-statics.meizu.com
+user.v2.meizu.com
+safe.meizu.com
 
 # 3-pard
 *.pos.baidu.com
@@ -54,6 +56,8 @@ api.passport.sohu.com
 *.vod.tv.itc.cn
 *.my.tv.sohu.com
 qm.hd.sohu.com.cn
+*.map.sogou.com
+*.aty.sohu.com
 
 # netease
 nstool.netease.com

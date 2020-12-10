@@ -124,6 +124,7 @@ vdposter.bdstatic.com
 *.uc.cn
 amdc.m.taobao.com
 *.ucweb.com
+log.mmstat.com
 
 # ads
 *.biddingx.com

@@ -126,6 +126,8 @@ func serveLocal(app appConf, serveraddr string) {
 		err = handshake(sonn, app.RemoteAddr)
 		if err != nil {
 			log.Println("Handshake error", err)
+			conn.Close()
+			sonn.Close()
 			continue
 		}
 

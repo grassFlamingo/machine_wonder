@@ -46,7 +46,7 @@ for file in sorted(os.listdir(args.inpath)):
 
 
 imgout = np.array(out)
-imgout = imgout.transpose(*[outdict[c] for c in outfmt]) / 255.0
+imgout = imgout.transpose(*[outdict[c] for c in outfmt]) / 1.0
 
 print("got packed", imgout.shape, imgout.dtype)
 

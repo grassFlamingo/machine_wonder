@@ -111,6 +111,7 @@ feed.baidu.com
 ada.baidu.com
 fclick.baidu.com
 vdposter.bdstatic.com
+baijiahao.baidu.com
 
 
 # alipay
@@ -157,4 +158,5 @@ m.galaxy-immi.com
 114.215.68.98
 183.232.149.31
 113.106.27.108
+119.29.29.29
 
